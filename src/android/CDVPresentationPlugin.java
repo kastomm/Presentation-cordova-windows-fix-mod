@@ -37,6 +37,11 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.hardware.display.DisplayManager;
 import android.view.Display;
+import android.os.Handler;
+import android.os.Looper;
+
+
+
 
 /**
  * Entry Class for Presentation API Cordova Plugin. This Plugin implements the W3C Presentation API as described in the final report  {@link http://www.w3.org/2014/secondscreen/presentation-api/20140721/} of the Second Screen Presentation API Community Group.
@@ -55,7 +60,7 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 		getDisplayManager();
 		super.initialize(cordova, webView);
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		getDisplayManager().unregisterDisplayListener(this);
@@ -66,7 +71,7 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 	/**
      * Executes the request and returns PluginResult.
      *
-     * @param action            The action to execute. 
+     * @param action            The action to execute.
      * @param args              JSONArray of arguments for the plugin.
      * @param callbackContext   The callback context used when calling back into JavaScript.
      * @return                  True when the action was valid, false otherwise.
@@ -100,7 +105,7 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 	// --------------------------------------------------------------------------
 	/**
 	 * This method will be called when navigator.presentation.onavialablechange is set to a valid JavaScript function in the controlling page
-	 * 
+	 *
 	 * @param args is an empty {@link JSONArray}
 	 * @param callbackContext the Cordova {@link CallbackContext} associated with this call
 	 * @return always true
@@ -111,10 +116,10 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 		sendAvailableChangeResult(callbackContext,getPresentations().size()>0);
 		return true;
 	}
-	
+
 	/**
 	 * This method will be called when {@code navigator.presentation.onavialablechange} is set to null or undefined in the controlling page
-	 * 
+	 *
 	 * @param args empty {@link JSONArray}. No parameters need to be passed to this call
 	 * @param callbackContext the Cordova {@link CallbackContext} associated with this call
 	 * @return
@@ -125,11 +130,11 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 		callbackContext.success();
 		return true;
 	}
-	
+
 	/**
 	 * This method will be called when {@code navigator.presentation.requestSession(url)} is called in the controlling page. A Display selection dialog will be shown to the user to pick a display.
-	 * An initial Session will be send back to the presenting page. 
-	 * 
+	 * An initial Session will be send back to the presenting page.
+	 *
 	 * @param args a {@link JSONArray} with one argument args[0]. args[0] contains the URL of the presenting page to open on the second screen
 	 * @param callbackContext the Cordova {@link CallbackContext} associated with this call
 	 * @return
@@ -142,10 +147,10 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 		sendSessionResult(session, null, null);
 		return true;
 	}
-	
+
 	/**
-	 * This method will be called when {@code session.postMessage(msg)} is called in the controlling page. {@code session} is the return value of {@code navigator.presentation.requestSession(url)}. 
-	 * 
+	 * This method will be called when {@code session.postMessage(msg)} is called in the controlling page. {@code session} is the return value of {@code navigator.presentation.requestSession(url)}.
+	 *
 	 * @param args a {@link JSONArray} with two arguments args[0] and args[1]. args[0] is the id of the session associated with this call and args[1] is the message to send to the presenting page.
 	 * @param callbackContext the Cordova {@link CallbackContext} associated with this call
 	 * @return
@@ -160,10 +165,10 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 		}
 		return true;
 	}
-	
+
 	/**
 	 * This method will be called when {@code session.close()} is called in the controlling page. Session state will be changed to 'disconnected' and both controlling page and receiver page will be notified by triggering {@code session.onstatechange} if set.
-	 * 
+	 *
 	 * @param args a {@link JSONArray} with one argument args[0]. args[0] is the id of the session associated with this call.
 	 * @param callbackContext the Cordova {@link CallbackContext} associated with this call
 	 * @return
@@ -183,7 +188,7 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 	}
 
 	/**
-	 * 
+	 *
 	 * @param args
 	 * @param callbackContext
 	 * @return
@@ -193,18 +198,18 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 		defaultDisplay = args.getString(0);
 		return true;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return the url of the default display
 	 */
 	public String getDefaultDisplay() {
 		return defaultDisplay;
 	}
-	
+
 	/**
-	 * This is a helper method to send AvailableChange Results to the controlling page. {@code session.onstatechange} will be triggered. 
-	 * 
+	 * This is a helper method to send AvailableChange Results to the controlling page. {@code session.onstatechange} will be triggered.
+	 *
 	 * @param callbackContext
 	 * @param available display availability. <code>true</code> if at least one display is available and <code>false</code> is no display is available
 	 */
@@ -220,12 +225,12 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 			LOG.e(LOG_TAG, e.getMessage(), e);
 		}
 	}
-	
+
 	/**
 	 * This is a helper method to send Session Results to the controlling page.
 	 * @param session the {@link PresentationSession} associated with this call. Only id the session will be sent
 	 * @param eventType <code>null</code> or <code>onmessage</code> or <code>onstatechange</code>
-	 * @param value represents the message  in case of eventType = <code>onmessage</code> or 
+	 * @param value represents the message  in case of eventType = <code>onmessage</code> or
 	 */
 	public static void sendSessionResult(PresentationSession session, String eventType, String value){
 		JSONObject obj = new JSONObject();
@@ -244,20 +249,20 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 			LOG.e(LOG_TAG, e.getMessage(), e);
 		}
 	}
-	
-	
+
+
 	private Activity getActivity(){
 		return activity;
 	}
-	
+
 	private void setAvailableChangeCallbackContext(CallbackContext availableChangeCallbackContext) {
 		this.availableChangeCallbackContext = availableChangeCallbackContext;
 	}
-	
+
 	private CallbackContext getAvailableChangeCallbackContext() {
 		return availableChangeCallbackContext;
 	}
-	
+
 	private DisplayManager getDisplayManager() {
 		if (displayManager == null) {
 			displayManager = (DisplayManager) getActivity().getSystemService(Activity.DISPLAY_SERVICE);
@@ -268,70 +273,81 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 		}
 		return displayManager;
 	}
-	
+
 	private Map<String, PresentationSession> getSessions() {
 		if (sessions == null) {
 			sessions = new HashMap<String, PresentationSession>();
 		}
 		return sessions;
 	}
-	
+
 	private Map<Integer, SecondScreenPresentation> getPresentations() {
 		if (presentations == null) {
 			presentations = new HashMap<Integer, SecondScreenPresentation>();
 		}
 		return presentations;
 	}
-	
-	private void showDisplaySelectionDialog(final PresentationSession session){
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		Collection<SecondScreenPresentation> collection = getPresentations().values();
-		int size = collection.size();
-		int counter = 0;
-		final SecondScreenPresentation presentations[] = new SecondScreenPresentation[size];
-		String items[] = new String[size];
-		for (SecondScreenPresentation presentation : collection) {
-			presentations[counter] = presentation;
-			items[counter++] = presentation.getDisplay().getName();
-		}
-		builder.setTitle("Select Presentation Display").setItems(items,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						SecondScreenPresentation presentation = presentations[which];
-						session.setPresentation(presentation);
-						getSessions().put(session.getId(), session);
-					}
-				}).setCancelable(false).setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-					}
-				}).setOnCancelListener(new DialogInterface.OnCancelListener() {
-					@Override
-					public void onCancel(DialogInterface dialog) {
-						session.setState(PresentationSession.DISCONNECTED);
-					}
-				});
-		AlertDialog dialog = builder.create();
-		dialog.show();
-	};
-	
+
+  private void showDisplaySelectionDialog(final PresentationSession session) {
+    // Use a Handler to introduce a small delay
+    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        Collection<SecondScreenPresentation> collection = getPresentations().values();
+        int size = collection.size();
+        int counter = 0;
+        final SecondScreenPresentation presentations[] = new SecondScreenPresentation[size];
+        String items[] = new String[size];
+
+        for (SecondScreenPresentation presentation : collection) {
+          presentations[counter] = presentation;
+          items[counter++] = presentation.getDisplay().getName();
+        }
+
+        builder.setTitle("Select Presentation Display").setItems(items,
+          new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+              SecondScreenPresentation presentation = presentations[which];
+              session.setPresentation(presentation);
+              getSessions().put(session.getId(), session);
+            }
+          }).setCancelable(false).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            dialog.cancel();
+          }
+        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+          @Override
+          public void onCancel(DialogInterface dialog) {
+            session.setState(PresentationSession.DISCONNECTED);
+          }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+      }
+    }, 300); // Delay of 300 milliseconds
+  }
+
+
+
 	@Override
 	public void onDisplayAdded(int displayId) {
 		Display display = getDisplayManager().getDisplay(displayId);
 		addDisplay(display);
 	}
-	
+
 	@Override
 	public void onDisplayChanged(int displayId) {
 		// nothing todo for now
 	}
-	
+
 	@Override
 	public void onDisplayRemoved(int displayId) {
 		removeDisplay(displayId);
 	}
-	
+
 	private void addDisplay(final Display display) {
 		if ((display.getFlags() & Display.FLAG_PRESENTATION) != 0) {
 			getActivity().runOnUiThread(new Runnable() {
@@ -350,7 +366,7 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
 			});
 		}
 	}
-	
+
 	private void removeDisplay(int displayId) {
 		int oldSize = getPresentations().size();
 		final SecondScreenPresentation presentation = getPresentations().remove(displayId);
