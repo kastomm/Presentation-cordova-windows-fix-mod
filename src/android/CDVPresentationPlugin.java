@@ -291,44 +291,55 @@ public class CDVPresentationPlugin extends CordovaPlugin implements DisplayManag
   private void showDisplaySelectionDialog(final PresentationSession session) {
     // Use a Handler to introduce a small delay
     new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        Collection<SecondScreenPresentation> collection = getPresentations().values();
-        int size = collection.size();
-        int counter = 0;
-        final SecondScreenPresentation presentations[] = new SecondScreenPresentation[size];
-        String items[] = new String[size];
+        @Override
+        public void run() {
+            Collection<SecondScreenPresentation> collection = getPresentations().values();
+            int size = collection.size();
 
-        for (SecondScreenPresentation presentation : collection) {
-          presentations[counter] = presentation;
-          items[counter++] = presentation.getDisplay().getName();
-        }
-
-        builder.setTitle("Select Presentation Display").setItems(items,
-          new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-              SecondScreenPresentation presentation = presentations[which];
-              session.setPresentation(presentation);
-              getSessions().put(session.getId(), session);
+            // If there is only one display, connect automatically
+            if (size == 1) {
+                SecondScreenPresentation presentation = collection.iterator().next(); // Get the single presentation
+                session.setPresentation(presentation);
+                getSessions().put(session.getId(), session);
+                return; // Exit the method
             }
-          }).setCancelable(false).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            dialog.cancel();
-          }
-        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
-          @Override
-          public void onCancel(DialogInterface dialog) {
-            session.setState(PresentationSession.DISCONNECTED);
-          }
-        });
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
-      }
+            // If there are multiple displays, show the selection dialog
+            String items[] = new String[size];
+            int counter = 0;
+            final SecondScreenPresentation presentations[] = new SecondScreenPresentation[size];
+
+            for (SecondScreenPresentation presentation : collection) {
+                presentations[counter] = presentation;
+                items[counter++] = presentation.getDisplay().getName();
+            }
+
+            // Create and show the selection dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Select Presentation Display").setItems(items,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        SecondScreenPresentation selectedPresentation = presentations[which];
+                        session.setPresentation(selectedPresentation);
+                        getSessions().put(session.getId(), session);
+                    }
+                }).setCancelable(false).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        session.setState(PresentationSession.DISCONNECTED);
+                    }
+                });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
     }, 300); // Delay of 300 milliseconds
-  }
+	}
 
 
 
