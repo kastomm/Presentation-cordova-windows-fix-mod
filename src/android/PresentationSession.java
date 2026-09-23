@@ -102,7 +102,7 @@ public class PresentationSession {
 				@Override
 				public void run() {
 					if (getPresentation() != null) {
-						getPresentation().getWebView().loadUrl("javascript:NavigatorPresentationJavascriptInterface.onstatechange('"+getId()+"','"+getState()+"')");
+						getPresentation().getWebView().evaluateJavascript("window.__cdvPresentation.onstatechange(" + org.json.JSONObject.quote(getId()) + "," + org.json.JSONObject.quote(getState()) + ")", null);
 					}
 				}
 			});
@@ -149,7 +149,7 @@ public class PresentationSession {
 						//getPresentation().getWebView().loadUrl("javascript:NavigatorPresentationJavascriptInterface.onmessage('"+getId()+"','"+msg+"')");
 						if (getPresentation() != null) {
 							getPresentation().getWebView().evaluateJavascript(
-								"NavigatorPresentationJavascriptInterface.onmessage(" + org.json.JSONObject.quote(getId()) + "," + org.json.JSONObject.quote(msg) + ")", null);
+								"window.__cdvPresentation.onmessage(" + org.json.JSONObject.quote(getId()) + "," + org.json.JSONObject.quote(msg) + ")", null);
 						}
 					}
 				});

@@ -120,7 +120,7 @@ public class SecondScreenPresentation extends Presentation {
 							@Override
 							public void run() {
 								if(getSession() != null){
-									webView.loadUrl("javascript:NavigatorPresentationJavascriptInterface.onsession({id: '"+getSession().getId()+"', state: '"+getSession().getState()+"'})");
+									webView.evaluateJavascript("window.__cdvPresentation.onsession({id: " + org.json.JSONObject.quote(getSession().getId()) + ", state: " + org.json.JSONObject.quote(getSession().getState()) + "})", null);
 									getSession().setState(PresentationSession.CONNECTED);
 								}
 							}
