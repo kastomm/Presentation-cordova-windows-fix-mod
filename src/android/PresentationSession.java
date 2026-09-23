@@ -146,7 +146,11 @@ public class PresentationSession {
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						getPresentation().getWebView().loadUrl("javascript:NavigatorPresentationJavascriptInterface.onmessage('"+getId()+"','"+msg+"')");
+						//getPresentation().getWebView().loadUrl("javascript:NavigatorPresentationJavascriptInterface.onmessage('"+getId()+"','"+msg+"')");
+						if (getPresentation() != null) {
+							getPresentation().getWebView().evaluateJavascript(
+								"NavigatorPresentationJavascriptInterface.onmessage(" + org.json.JSONObject.quote(getId()) + "," + org.json.JSONObject.quote(msg) + ")", null);
+						}
 					}
 				});
 			}
