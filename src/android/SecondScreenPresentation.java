@@ -95,10 +95,22 @@ public class SecondScreenPresentation extends Presentation {
 				}
 				@Override
 				public void onPageFinished(WebView view, String url) {
-					view.loadUrl(NavigatorPresentationJS.RECEIVER);
-					view.loadUrl("javascript:document.dispatchEvent(new Event('deviceready'));");
+					// only wire up the page that belongs to the session. about:blank (loaded in
+					// onCreate) also fires onPageFinished, and on slow/old WebViews that callback
+					// can land after the real page has committed, injecting the receiver twice.
+					// The receiver is not idempotent, so the second copy breaks onpresent.
+					if (getSession() != null && url != null && url.equals(getSession().getUrl())) {
+						view.loadUrl(NavigatorPresentationJS.RECEIVER);
+						view.loadUrl("javascript:document.dispatchEvent(new Event('deviceready'));");
+					}
 					super.onPageFinished(view, url);
 				}
+				//old broken one
+				//public void onPageFinished(WebView view, String url) {
+				//	view.loadUrl(NavigatorPresentationJS.RECEIVER);
+				//	view.loadUrl("javascript:document.dispatchEvent(new Event('deviceready'));");
+				//	super.onPageFinished(view, url);
+				//}
 			});
 			webView.addJavascriptInterface(new Object(){
 				@JavascriptInterface
